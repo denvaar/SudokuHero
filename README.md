@@ -37,9 +37,20 @@ text file contains DOS or UNIX style line endings.
 the user to switch between two different ways to save
 a map.
 
-### File Descriptions ###
+### Project Structure ###
 
+#### Files ####
 
+    ./README.txt        Application information
+    ./mainFile.py       Application entry point (python mainFile.py to run)
+    ./screenShot.png    Sample screen shot
+
+#### Directories ####
+
+    ./diagrams/      UML Diagrams
+    ./algorithms/    Algorithms for loading, saving, and solving puzzles.
+    ./widgets/       Custom GUI widgets
+    ./unittests/     Unit tests of core functionalities
 
 ### Author ###
 

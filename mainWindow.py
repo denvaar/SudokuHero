@@ -3,17 +3,21 @@ from PyQt5 import QtWidgets, QtCore, QtGui, Qt
 
 from src.widgets.puzzleWidget import PuzzleWidget
 from src.algorithms.sudokuTemplate import SudokuSolverOne, SudokuSolverTwo
-from src.algorithms.saveStrategy import ComplicatedSaver, SimpleSaver
+#from src.algorithms.saveStrategy import ComplicatedSaver, SimpleSaver
 from src.algorithms.fileFactory import FileFactory
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
+        self.fileFactory = FileFactory()
         self.setWindowTitle("Sudoku Hero")
         self.resize(1000,700)
         self.initUI()
 
     def initUI(self):
+        '''
+        Set up the controls for the window.
+        '''
         layout = QtWidgets.QVBoxLayout()
         hbox = QtWidgets.QHBoxLayout()
         vbox2 = QtWidgets.QVBoxLayout()
@@ -36,15 +40,16 @@ class MainWindow(QtWidgets.QWidget):
         self.comboSave.addItem("Row-based")
         label = QtWidgets.QLabel("Select <i>solving</i> method:", self)
         lblSave = QtWidgets.QLabel("Select <i>saving</i> method:", self)
-        self.puzzleList.setFixedSize(700,80) 
+        self.puzzleList.setFixedHeight(80) 
+        self.puzzleList.setMinimumWidth(700) 
         
         hbox.addWidget(self.puzzleList)
-        #vbox2.addStretch(1)
         vbox2.addWidget(self.btnLoad)
         vbox3.addWidget(label)
         vbox3.addWidget(self.combo)
         vbox3.addWidget(lblSave)
         vbox3.addWidget(self.comboSave)
+        hbox.addStretch(1)
         hbox.addLayout(vbox3)
         vbox2.addWidget(self.btnSolve)
         vbox2.addWidget(self.btnSave)
@@ -53,58 +58,65 @@ class MainWindow(QtWidgets.QWidget):
         vbox.addLayout(hbox)
         hbox.addLayout(vbox2)
         layout.addLayout(vbox)
-        
         self.setLayout(layout)
        
+        # Event handlers
         self.btnLoad.clicked.connect(self.onClick)
         self.btnSolve.clicked.connect(self.onSolve)
         self.btnSave.clicked.connect(self.onSave)
         self.puzzleList.clicked.connect(self.onPuzzleClick)
-        #self.combo.activated[str].connect(self.onMethodSelect)
 
     def onSolve(self):
-        #self.timer = QtCore.QTimer()
+        '''
+        Happens when the "Solve" button is clicked.
+        '''
         self.solver.trigger.connect(self.graphicsView.updateCell)
         self.solver.finished.connect(self.graphicsView.finished)
         self.solver.finished.connect(self.finished)
-        #self.timer.start(1000 / 33);
-        self.solver.start()#solveSudoku()
+        self.solver.start()
 
     def onSave(self):
-        if str(self.comboSave.currentText()) == "Joins & Maps":
-            self.saver = SimpleSaver()
-        else:
-            self.saver = ComplicatedSaver()
+        '''
+        Happens when the "Save" button is clicked.
+        '''
+        #if str(self.comboSave.currentText()) == "Joins & Maps":
+        #    self.saver = SimpleSaver()
+        #else:
+        #    self.saver = ComplicatedSaver()
+        
         filename = QtWidgets.QFileDialog.getSaveFileName( \
             self, 'Save puzzle as...', '', 'Text Files (*.txt)')
-        self.saver.savePuzzle(self.solver.puzzle, filename[0])
+        #self.saver.savePuzzle(self.solver.puzzle, filename[0])
+        
+        saveObject = self.fileFactory.saveFile(\
+            str(self.comboSave.currentText()))
+        saveObject.savePuzzle(self.solver.puzzle, filename[0])
 
     def onClick(self):
+        '''
+        Happens when the "Load Puzzles" button is clicked.
+        '''
         filenames = QtWidgets.QFileDialog.getOpenFileNames( \
             self, 'Select puzzles', '', 'Text Files (*.txt)')
         print(type(filenames))
         for _file in filenames[0]:
             listItem = QtWidgets.QListWidgetItem(_file)
-            #print(dir(Qt.QFileIconProvider.File))
-            #listItem.setIcon(QtGui.QIcon.fromTheme("edit-undo"))
             self.puzzleList.addItem(listItem)
 
     
     def onPuzzleClick(self, index):
+        '''
+        Happens when a puzzle is selected from the list.
+        '''
         print(index.data())
         if str(self.combo.currentText()) == "SudokuSolverOne":
             self.solver = SudokuSolverOne()
         else:
             self.solver = SudokuSolverTwo()
 
-        #self.solver.loadPuzzle(index.data())
-        fileFactory = FileFactory()
-        fileObject = fileFactory.getFile(index.data())
+        fileObject = self.fileFactory.getFile(index.data())
         tup = fileObject.load(index.data())
         self.solver.setData(tup)
-        #self.solver.puzzleSize = tup[0]
-        #self.solver.puzzleValues = tup[1]
-        #self.solver.puzzle = tup[2]
 
         self.graphicsView.scene.clear()
         self.graphicsView.setPuzzle(self.solver.puzzle)
@@ -112,11 +124,14 @@ class MainWindow(QtWidgets.QWidget):
         self.btnSave.setEnabled(False)
     
     def finished(self, msg):
+        '''
+        Happens when a puzzle is finished being solved.
+        '''
         if msg == "SOLVED":
             self.btnSave.setEnabled(True)        
 
-# sudokuwiki.org
 
+# Application entry point
 app = QtWidgets.QApplication(sys.argv)
 w = MainWindow()
 w.show()

@@ -193,8 +193,8 @@ class SudokuSolverTwo(AbstractSudoku, QThread):
             if self.puzzle[cell[1]][cell[0]] != SudokuSolverTwo.EMPTY_CELL])
 
     def validate(self, x, y): 
-        horizontal = set(self.puzzle[:,x]) - set([SudokuSolverTwo.EMPTY_CELL])
         vertical = set(self.puzzle[y]) - set([SudokuSolverTwo.EMPTY_CELL])
+        horizontal = set(self.puzzle[:,x]) - set([SudokuSolverTwo.EMPTY_CELL])
         return len(list(\
             filter(lambda a: a != SudokuSolverTwo.EMPTY_CELL, self.puzzle[:,x]))) \
             == len(horizontal) and \
@@ -203,9 +203,12 @@ class SudokuSolverTwo(AbstractSudoku, QThread):
             == len(vertical)
 
     def getPossibleAnswers(self, x, y):
-        l = set()
-        l.update([i for i in self.puzzle[:,x] if i != SudokuSolverTwo.EMPTY_CELL])
-        l.update([i for i in self.puzzle[y] if i != SudokuSolverTwo.EMPTY_CELL])
-        l.update(self.getBox(x-x%int(sqrt(len(self.puzzle))),
+        setOfAnswers = set()
+        setOfAnswers.update([i for i in self.puzzle[y] \
+            if i != SudokuSolverTwo.EMPTY_CELL])
+        setOfAnswers.update([i for i in self.puzzle[:,x] \
+            if i != SudokuSolverTwo.EMPTY_CELL])
+        setOfAnswers.update(self.getBox(x-x%int(sqrt(len(self.puzzle))),
                                y-y%int(sqrt(len(self.puzzle)))))
-        return set(self.puzzleValues) - l
+        return set(self.puzzleValues) - setOfAnswers
+

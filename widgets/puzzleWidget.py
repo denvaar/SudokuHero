@@ -55,8 +55,6 @@ class PuzzleWidget(QtWidgets.QGraphicsView):
             color = QtGui.QColor(0,150,50)
         else:
             color = QtGui.QColor(200,0,0)
-        #for item in self.items():
-        #    item.setDefaultTextColor(color)
         solved.setDefaultTextColor(color)
         solved.setOpacity(0.3)
 
@@ -77,7 +75,6 @@ class PuzzleWidget(QtWidgets.QGraphicsView):
         for row in self.rows:
             for cell in row:
                 item = QtWidgets.QGraphicsTextItem()
-                #print("setting",(self.rows.tolist().index(row.tolist()),row.tolist().index(cell)),"to", cell)
                 orig = cell
                 if cell == '_':
                     cell = ' '
