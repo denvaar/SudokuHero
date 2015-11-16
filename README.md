@@ -9,6 +9,8 @@ application, it has been built as a way
 to explore a couple software design patterns
 as well as PyQt.
 
+GitHub link: https://github.com/denvaar/SudokuHero
+
 ![Sudoku Hero](https://github.com/denvaar/SudokuHero/blob/master/screenShot.png)
 
 ### Requirments ###
