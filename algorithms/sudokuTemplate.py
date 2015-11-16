@@ -1,7 +1,7 @@
 import numpy
 import sys
 from math import sqrt
-
+from collections import Counter
 from PyQt5.QtCore import QThread, pyqtSignal
 
 class AbstractSudoku(object):
@@ -80,7 +80,6 @@ class SudokuSolverOne(AbstractSudoku, QThread):
         self.puzzle = numpy.array(tup[2])
 
     def getEmptyCells(self):
-        print(self.puzzleSize)
         emptyCells = []
         x = y = 0
         for row in self.puzzle:
@@ -103,16 +102,7 @@ class SudokuSolverOne(AbstractSudoku, QThread):
             for i in relBox]
         return set([self.puzzle[cell[1]][cell[0]] for cell in absBox \
             if self.puzzle[cell[1]][cell[0]] != SudokuSolverTwo.EMPTY_CELL])
-    '''
-    def getBox(self, x, y):
-        return self._getBox(x, y, set())
-
-    def _getBox(self, x, y, setOfCells):
-        if x%self.puzzleSize < self.puzzleSize and y%self.puzzleSize < self.puzzleSize:
-            setOfCells.update([self.puzzle[x][y]])
-            self._getBox(x+1, y, setOfCells)
-        return setOfCells
-    '''
+                
     def validate(self, x, y): 
         horizontal = set(self.puzzle[:,x]) - set([SudokuSolverOne.EMPTY_CELL])
         vertical = set(self.puzzle[y]) - set([SudokuSolverOne.EMPTY_CELL])
@@ -122,6 +112,7 @@ class SudokuSolverOne(AbstractSudoku, QThread):
             len(list(\
             filter(lambda a: a != SudokuSolverOne.EMPTY_CELL, self.puzzle[y]))) \
             == len(vertical)
+    
 
     def getPossibleAnswers(self, x, y):
         l = set()
@@ -166,7 +157,6 @@ class SudokuSolverTwo(AbstractSudoku, QThread):
         l = []
         e = self._getEmptyCells(emptyCells=l)
         return e
-        #return self._getEmptyCells()
 
     def _getEmptyCells(self, row=0, emptyCells=[]):
         try:
@@ -181,8 +171,10 @@ class SudokuSolverTwo(AbstractSudoku, QThread):
             return [(-1,-1)]
     
     def getBox(self, x, y):
-        # Uses some fancy math to get all of the
-        # values in the same box as cell(x,y)
+        '''
+        Uses some fancy math to get all of the
+        values in the same box as cell(x,y)
+        '''
         p = (x,y)
         boxSize = int(sqrt(self.puzzleSize))
         relBox = [(row,col) for col in range(0, boxSize) \
@@ -193,14 +185,22 @@ class SudokuSolverTwo(AbstractSudoku, QThread):
             if self.puzzle[cell[1]][cell[0]] != SudokuSolverTwo.EMPTY_CELL])
 
     def validate(self, x, y): 
-        vertical = set(self.puzzle[y]) - set([SudokuSolverTwo.EMPTY_CELL])
-        horizontal = set(self.puzzle[:,x]) - set([SudokuSolverTwo.EMPTY_CELL])
-        return len(list(\
-            filter(lambda a: a != SudokuSolverTwo.EMPTY_CELL, self.puzzle[:,x]))) \
-            == len(horizontal) and \
-            len(list(\
-            filter(lambda a: a != SudokuSolverTwo.EMPTY_CELL, self.puzzle[y]))) \
-            == len(vertical)
+        '''
+        Checks that there are no duplicate values
+        in the row an column of x,y
+        '''
+        col = list(filter(lambda i: i != SudokuSolverTwo.EMPTY_CELL, self.puzzle[:,x]))
+        row = list(filter(lambda a: a != SudokuSolverOne.EMPTY_CELL, self.puzzle[y]))
+
+        counts_col = Counter(col)
+        counts_row = Counter(row)
+        for count in counts_col.values():
+            if count > 1:
+                return False
+        for count in counts_row.values():
+            if count > 1:
+                return False
+        return True
 
     def getPossibleAnswers(self, x, y):
         setOfAnswers = set()
