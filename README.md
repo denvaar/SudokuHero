@@ -37,6 +37,8 @@ text file contains DOS or UNIX style line endings.
 the user to switch between two different ways to save
 a map.
 
+![UML Class Diagram](https://github.com/denvaar/SudokuHero/blob/master/diagrams/ClassDiagram.JPG)
+
 ### Project Structure ###
 
 #### Files ####
